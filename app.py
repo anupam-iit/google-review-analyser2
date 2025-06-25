@@ -79,16 +79,23 @@ def fetch_reviews_serpapi(business, location):
 # Get reviews using Selenium (more reviews)
 def fetch_reviews_selenium(business, location):
     try:
+        from selenium.webdriver.chrome.service import Service
+        from webdriver_manager.chrome import ChromeDriverManager
+        from selenium.webdriver.chrome.options import Options
+
         # Configure Selenium options
         options = Options()
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")  # New headless mode
         options.add_argument("--disable-gpu")
-        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--no-sandbox")  # Important for Docker/Cloud
+        options.add_argument("--disable-dev-shm-usage")  # Important for Docker/Cloud
         ua = UserAgent()
         user_agent = ua.random
         options.add_argument(f'user-agent={user_agent}')
-
-        driver = webdriver.Chrome(options=options)
+        
+        # Use WebDriver Manager to handle chromedriver
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
 
         # Search for the business
         search_query = f"{business} {location}".replace(' ', '+')
